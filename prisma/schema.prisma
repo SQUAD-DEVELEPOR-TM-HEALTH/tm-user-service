@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  nik          String?   @unique
+  email        String    @unique
+  dob          DateTime?
+  gender       String?
+  agreement    Boolean   @default(false)
+  password     String?
+  link_photo   String?
+  phoneNumber  String?   @map("phone_number")
+  phoneCode    String?   @map("phone_code")
+  tokenFcm     String?   @map("token_fcm")
+  googleId     String?   @unique @map("google_id")
+  authProvider String?   @default("local") @map("auth_provider") // local, google, facebook, etc.
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  verification Verification[]
+
+  @@map("users")
+}
+
+model Verification {
+  id        Int      @id @default(autoincrement())
+  otp       String
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verifications")
+}
